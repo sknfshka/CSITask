@@ -30,11 +30,11 @@ public class OperationsWithPriceLists {
                     if(importedPrice.isIntersects(currentPrice)) {
                         /* цены совпадают */
                         if(importedPrice.value == currentPrice.value) {
-                            unionPricesWithSameValue(importedPriceListIterator, resultPriceList, importedPrice, currentPriceListIterator, currentPrice);
+                            importedPrice = unionPricesWithSameValue(importedPriceListIterator, resultPriceList, importedPrice, currentPriceListIterator, currentPrice);
                         }
                         /* цены не совпадают*/
                         else {
-                            unionPricesWithoutSamePrices(importedPriceListIterator, resultPriceList, importedPrice, currentPriceListIterator, currentPrice);
+                            unionPricesWithDiffPrices(importedPriceListIterator, resultPriceList, importedPrice, currentPriceListIterator, currentPrice);
                         }
                     }
                 }
@@ -54,30 +54,34 @@ public class OperationsWithPriceLists {
      * @param currentPriceListIterator итератор списка текущих цен
      * @param currentPrice текущая цена
      */
-    private void unionPricesWithoutSamePrices(ListIterator<Price> importedPriceListIterator, LinkedList<Price> resultPriceList, Price importedPrice, ListIterator<Price> currentPriceListIterator, Price currentPrice) {
+    private void unionPricesWithDiffPrices(ListIterator<Price> importedPriceListIterator, LinkedList<Price> resultPriceList, Price importedPrice, ListIterator<Price> currentPriceListIterator, Price currentPrice) {
         /* диапазон импортируемой цены оканчивается до диапазона текущей цены */
         if(importedPrice.before(currentPrice)) {
-            Price editedPrice = new Price(currentPrice);
-            editedPrice.begin = importedPrice.end;
-            currentPriceListIterator.set(editedPrice);
+            if(!currentPrice.end.equals(importedPrice.end)) {
+                Price editedPrice = new Price(currentPrice);
+                editedPrice.begin = importedPrice.end;
+                currentPriceListIterator.set(editedPrice);
+            }
             resultPriceList.add(importedPrice);
             importedPriceListIterator.remove();
         }
         /* диапазон импортируемой цены оканчивается после диапазона текущей цены */
         else if(importedPrice.after(currentPrice)) {
-            Price editedPrice = new Price(currentPrice);
-            editedPrice.end = importedPrice.begin;
-            resultPriceList.add(editedPrice);
+            if(!currentPrice.begin.equals(importedPrice.begin)) {
+                Price editedPrice = new Price(currentPrice);
+                editedPrice.end = importedPrice.begin;
+                resultPriceList.add(editedPrice);
+            }
             currentPriceListIterator.remove();
         }
          /* диапазон импортируемой цены внутри диапазона текущей цены */
         else if(importedPrice.consistIn(currentPrice)){
             Price resultPrice = new Price(currentPrice);
-            resultPrice.setEnd(importedPrice.begin);
+            resultPrice.end = importedPrice.begin;
             resultPriceList.add(resultPrice);
             resultPriceList.add(importedPrice);
             resultPrice = new Price(currentPrice);
-            resultPrice.setBegin(importedPrice.end);
+            resultPrice.begin = importedPrice.end;
             resultPriceList.add(resultPrice);
             currentPriceListIterator.remove();
             importedPriceListIterator.remove();
@@ -91,16 +95,19 @@ public class OperationsWithPriceLists {
      * @param importedPrice импортируемая цена
      * @param currentPriceListIterator итератор списка текущих цен
      * @param currentPrice текущая цена
+     * @return цена, получившаяся в результате объединения
      */
-    private void unionPricesWithSameValue(ListIterator<Price> importedPriceListIterator, LinkedList<Price> resultPriceList, Price importedPrice, ListIterator<Price> currentPriceListIterator, Price currentPrice) {
+    private Price unionPricesWithSameValue(ListIterator<Price> importedPriceListIterator, LinkedList<Price> resultPriceList, Price importedPrice, ListIterator<Price> currentPriceListIterator, Price currentPrice) {
+        Price union = unionPrices(currentPrice, importedPrice);
         if(currentPrice.before(importedPrice)) {
-            importedPriceListIterator.set(unionPrices(currentPrice, importedPrice));
+            importedPriceListIterator.set(union);
         }
         else {
-            resultPriceList.add(unionPrices(currentPrice, importedPrice));
+            resultPriceList.add(union);
             importedPriceListIterator.remove();
         }
         currentPriceListIterator.remove();
+        return union;
     }
 
     /**
@@ -113,14 +120,14 @@ public class OperationsWithPriceLists {
         Price result = new Price(firstPrice.id, firstPrice.productCode, firstPrice.number, firstPrice.depart, firstPrice.value);
 
         if(firstPrice.begin.before(secondPrice.begin) || firstPrice.begin.equals(secondPrice.begin))
-            result.setBegin(firstPrice.begin);
+            result.begin = firstPrice.begin;
         else
-            result.setBegin(secondPrice.begin);
+            result.begin = secondPrice.begin;
 
         if(firstPrice.end.before(secondPrice.end) || firstPrice.end.equals(secondPrice.end))
-            result.setEnd(secondPrice.end);
+            result.end = secondPrice.end;
         else
-            result.setEnd(firstPrice.end);
+            result.end = firstPrice.end;
 
         return result;
     }
