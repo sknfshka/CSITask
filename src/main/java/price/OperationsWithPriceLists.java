@@ -43,6 +43,7 @@ public class OperationsWithPriceLists {
 
         resultPriceList.addAll(importedPriceList);
         resultPriceList.addAll(currentPriceList);
+        Collections.sort(resultPriceList,  (p1, p2) ->  p1.begin.compareTo(p2.begin));
         return resultPriceList;
     }
 

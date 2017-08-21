@@ -200,6 +200,10 @@ public class OperationsWithPriceListsTest {
                 new Date(2013, 0, 25, 0, 0, 0),
                 90));
 
+        importedPriceList.add(new Price(0, "6654", 1, 2,
+                new Date(2013, 0, 5, 0, 0, 0),
+                new Date(2013, 0, 10, 0, 0, 0),
+                75));
         importedPriceList.add(new Price(4, "6654", 1, 2,
                 new Date(2013, 0, 12, 0, 0, 0),
                 new Date(2013, 0, 17, 0, 0, 0),
@@ -209,6 +213,10 @@ public class OperationsWithPriceListsTest {
                 new Date(2013, 0, 22, 0, 0, 0),
                 85));
 
+        expectedResult.add(new Price(0, "6654", 1, 2,
+                new Date(2013, 0, 5, 0, 0, 0),
+                new Date(2013, 0, 10, 0, 0, 0),
+                75));
         expectedResult.add(new Price(1, "6654", 1, 2,
                 new Date(2013, 0, 10, 0, 0, 0),
                 new Date(2013, 0, 17, 0, 0, 0),
